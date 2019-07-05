@@ -1,0 +1,79 @@
+<script type="text/javascript" charset="utf-8" src="/resources/assets/js/amazeui.min.js" ></script>
+<div class="">
+	<button type="button" class="am-btn am-btn-default am-btn-sm js_downloadBtn">
+		<i class="am-icon-cloud-download"></i>下载
+	</button>
+</div>
+
+<div>
+	<button type="button" class="am-btn am-btn-default am-btn-sm js_upload" style="margin-right: 30px;">
+	<i class="am-icon-cloud-upload"></i> 选择文件
+  </button>
+  <input id="doc_form_file" type="file">
+</div>
+
+// 直接是上传
+#doc-form-file{
+    position: absolute;
+    margin: -36px 0px 6px 100px;
+    height: 34px;
+    opacity: 0;
+    font-size: 3rem;
+    width: 125px;
+}
+// 如果是先校验其他项在上传，可以把选择文件的框隐藏，验证通过后通过$('#doc_form_file').click();触发文件上传
+#doc_form_file{
+    position: absolute;
+    height: 33px;
+    opacity: 0;
+    display:none;
+    font-size: 3rem;
+    width: 104px;
+}
+
+$(function(){
+	// 点击下载
+	$(".js_downloadBtn").click(function(){  
+		window.location.href="/platformCode/export";
+	});
+	$('#doc_form_file').on('change', function () {
+		var file = this.files[0];
+		var fileName = file.name;
+		var ext = fileName.toLowerCase().split('.').splice(-1);
+		
+		if (!(ext && /^(xls)$/.test(ext))) {
+			$("#doc_form_file").val(null);?
+			alert("文件格式错误");
+			return false;
+		} else{
+			var formData = new FormData()
+			formData.append("file", file);
+			$.ajax({
+				url: "/platformCode/import",
+				type: 'POST',
+				cache: false,
+				data: formData,
+				dataType: "json",
+				processData: false,
+				contentType: false,
+				success: function (d) {
+					batchBind(d.responseJSON.data, fileName);
+				},
+				error:function(d){
+					if(d.responseJSON.error==="login_timeout"||d.responseJSON.message==="登录超时，请重新登录"){
+						window.location.href = '/resources/html/index.html';
+					} else if(d.responseJSON.error==="is_continue") {
+						if(confirm(d.responseJSON.message)){
+							batchBind(d.responseJSON.data, fileName);
+						}
+					} else {
+						alert(d.responseJSON.message);
+					}
+				},
+				complete: function() {
+					$("#doc_form_file").val(null);
+				}
+			});
+		}
+	});
+});
