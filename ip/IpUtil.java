@@ -7,13 +7,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
-public class AbstractBaseController {
+public class IpUtil {
     /**
      * 日志记录
      */
@@ -22,25 +20,6 @@ public class AbstractBaseController {
     private static final List<String> IP_HEADER = ImmutableList.of(
             "x-forwarded-for", "X_Forwarded_For", "X-Real-IP", "Proxy-Client-IP",
             "WL-Proxy-Client-IP", "HTTP_CLIENT_IP", "HTTP_X_FORWARDED_FOR");
-    
-    /**
-     * @Title: validateData @Description: 验证数据 @param bindResult 绑定数据 @return
-     *         ErrorMessageDictionary @throws
-     */
-    public String validateData(BindingResult bindResult) {
-        List<ObjectError> errorList = bindResult.getAllErrors();
-        LOGGER.info("validate field : List<ObjectError> :{}" ,errorList);
-        String errorMsg = "";
-        if (errorList != null && !errorList.isEmpty()) {
-            for (ObjectError errorDate : errorList) {
-                errorMsg = errorDate.getDefaultMessage();
-                LOGGER.info("validate field : getDefaultMessage :{}" , errorMsg);
-                break;
-            }
-            return errorMsg;
-        }
-        return "";
-    }
     
     /**
      * 获取ip地址
